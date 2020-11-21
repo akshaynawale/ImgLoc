@@ -57,13 +57,17 @@ func getImageLocations(imgs []os.FileInfo) map[string]string {
 		imgf, err := os.Open(path.Join(dPath, f.Name()))
 		defer imgf.Close()
 		if err != nil {
-			glog.Errorf("failed to read file: %s", f.Name())
+			e := fmt.Sprintf("failed to read file: %s", f.Name())
+			glog.Error(e)
+			gMapURLs[f.Name()] = e
 			continue
 		}
 
 		e, err := exif.Decode(imgf)
 		if err != nil {
-			glog.Errorf("failed to decode exif data from file: %s, Error: %v", f.Name(), err)
+			e := fmt.Sprintf("failed to decode exif data from file: %s, Error: %v", f.Name(), err)
+			glog.Error(e)
+			gMapURLs[f.Name()] = e
 			continue
 		}
 		// get location information from the exif data
@@ -71,6 +75,10 @@ func getImageLocations(imgs []os.FileInfo) map[string]string {
 		loc.Lat, loc.Lng, err = e.LatLong()
 		if err != nil {
 			glog.Errorf("failed to get latitude longitude data for file: %s Error: %v", f.Name(), err)
+		}
+		if loc.Lat == 0 && loc.Lng == 0 {
+			gMapURLs[f.Name()] = ""
+			continue
 		}
 		gMapURLs[f.Name()] = fmt.Sprintf("%s", getGoogleMapURL(loc))
 	}
