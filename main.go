@@ -77,7 +77,7 @@ func getImageLocations(imgs []os.FileInfo) map[string]string {
 			glog.Errorf("failed to get latitude longitude data for file: %s Error: %v", f.Name(), err)
 		}
 		if loc.Lat == 0 && loc.Lng == 0 {
-			gMapURLs[f.Name()] 
+			gMapURLs[f.Name()] = ""
 			continue
 		}
 		gMapURLs[f.Name()] = fmt.Sprintf("%s", getGoogleMapURL(loc))
@@ -122,6 +122,7 @@ func main() {
 		for fName, u := range gMapURLs {
 			fmt.Printf("\n%s: %s\n", fName, u)
 		}
+		fmt.Printf("DONE")
 	} else {
 		data, err := json.Marshal(gMapURLs)
 		if err != nil {
